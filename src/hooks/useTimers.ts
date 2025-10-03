@@ -25,7 +25,7 @@ export const useTimers = () => {
         setTimerList(prevList =>
             prevList.map(timer => ({ ...timer, isRunning: false }))
         );
-    }, []);
+    }, [clearIntervals]);
 
     // Create new timers
     const selectTimers = useCallback((value: number) => {
@@ -125,14 +125,11 @@ export const useTimers = () => {
 
     // Cleanup on unmount
     useEffect(() => {
-        const intervals = intervalRefs.current;
+
         return () => {
-            intervals.forEach((intervalId) => {
-                clearInterval(intervalId);
-            });
-            intervals.clear();
+            clearIntervals()
         };
-    }, []);
+    }, [clearIntervals]);
 
     return {
         timers,

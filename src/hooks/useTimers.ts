@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Timer, generateRandomTimer, validateTimerCount } from '../utils/timerUtils';
+import { Timer, generateRandomTimer } from '../utils/timerUtils';
 
 export const useTimers = () => {
     // State
@@ -27,21 +27,19 @@ export const useTimers = () => {
         );
     }, [clearAllIntervals]);
 
-    // Create new timers
+    // Create new timers after select element is changed
     const selectTimers = useCallback((value: number) => {
-        if (!validateTimerCount(value)) {
-            console.warn('Invalid timer count:', value);
-            return;
-        }
 
         // Stop all running timers first
         if (isRunning) {
             stopAll();
         }
 
+        //update number of timers
         setTimers(value);
 
         if (value > 0) {
+            //generate new timers with default values before starting them
             const newTimers = [...Array(value)].map((_, i) => generateRandomTimer(i + 1));
             setTimerList(newTimers);
         } else {
@@ -51,6 +49,7 @@ export const useTimers = () => {
 
     // Start all timers
     const startAll = useCallback(() => {
+
         timerList.forEach((timer) => {
             if (!timer.isRunning) {
                 const intervalId = setInterval(() => {
@@ -67,6 +66,7 @@ export const useTimers = () => {
             }
         });
 
+        //update timer Ui to start immediately instead of waiting for the next tick
         setTimerList(prevList =>
             prevList.map(timer => ({ ...timer, isRunning: true }))
         );
@@ -74,7 +74,10 @@ export const useTimers = () => {
 
     // Reset all timers
     const resetAll = useCallback(() => {
+        //clear all intervals
         clearAllIntervals()
+
+        //clear timer Ui to original values
         setTimerList(prevList =>
             prevList.map(timer => ({
                 ...timer,
@@ -86,8 +89,10 @@ export const useTimers = () => {
 
     // Start individual timer
     const startTimer = useCallback((timerId: number) => {
+        //find the timer by id and check if it is running
         const timer = timerList.find(t => t.id === timerId);
         if (timer && !timer.isRunning) {
+            ///start the interval timer and increment the current seconds
             const intervalId = setInterval(() => {
                 setTimerList(prevList =>
                     prevList.map(t =>
@@ -98,9 +103,10 @@ export const useTimers = () => {
                 );
             }, timer.tickInterval);
 
+            //store reference to the interval timer
             intervalRefs.current.set(timerId, intervalId as unknown as number);
 
-            // Update the timer list to show that the timer is running
+            //update timer Ui to start immediately instead of waiting for the next tick
             setTimerList(prevList =>
                 prevList.map(t =>
                     t.id === timerId ? { ...t, isRunning: true } : t
@@ -111,12 +117,14 @@ export const useTimers = () => {
 
     // Stop individual timer
     const stopTimer = useCallback((timerId: number) => {
+        //prevents the interval timer from running by clearing and removing the ref.
         const intervalId = intervalRefs.current.get(timerId);
         if (intervalId) {
             clearInterval(intervalId);
             intervalRefs.current.delete(timerId);
         }
 
+        //ui update stop running but retain current values  
         setTimerList(prevList =>
             prevList.map(t =>
                 t.id === timerId ? { ...t, isRunning: false } : t

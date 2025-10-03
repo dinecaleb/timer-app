@@ -34,11 +34,3 @@ export const formatTime = (seconds: number): string => {
         .padStart(2, "0")}`;
 };
 
-// Validation functions
-export const validateTimerCount = (count: number): boolean => {
-    return Number.isInteger(count) && count >= 0 && count <= 4;
-};
-
-export const validateTimerId = (id: number, timers: Timer[]): boolean => {
-    return timers.some(timer => timer.id === id);
-};

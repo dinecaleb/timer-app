@@ -58,6 +58,7 @@ export default function App() {
           ))}
         </div>
 
+        {/* Global controls */}
         {timers > 0 && (
           <div className="global-controls">
             {!isRunning ? (

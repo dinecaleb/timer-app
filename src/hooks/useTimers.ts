@@ -12,13 +12,16 @@ export const useTimers = () => {
         return timerList.some(timer => timer.isRunning);
     }, [timerList]);
 
-    // Stop all timers
-    const stopAll = useCallback(() => {
+    const clearIntervals = useCallback(() => {
         intervalRefs.current.forEach((intervalId) => {
             clearInterval(intervalId);
         });
         intervalRefs.current.clear();
+    }, []);
 
+    // Stop all timers
+    const stopAll = useCallback(() => {
+        clearIntervals()
         setTimerList(prevList =>
             prevList.map(timer => ({ ...timer, isRunning: false }))
         );
@@ -71,7 +74,7 @@ export const useTimers = () => {
 
     // Reset all timers
     const resetAll = useCallback(() => {
-        stopAll();
+        clearIntervals()
         setTimerList(prevList =>
             prevList.map(timer => ({
                 ...timer,
@@ -79,7 +82,7 @@ export const useTimers = () => {
                 isRunning: false
             }))
         );
-    }, [stopAll]);
+    }, [clearIntervals]);
 
     // Start individual timer
     const startTimer = useCallback((timerId: number) => {

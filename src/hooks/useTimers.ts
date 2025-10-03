@@ -12,7 +12,7 @@ export const useTimers = () => {
         return timerList.some(timer => timer.isRunning);
     }, [timerList]);
 
-    const clearIntervals = useCallback(() => {
+    const clearAllIntervals = useCallback(() => {
         intervalRefs.current.forEach((intervalId) => {
             clearInterval(intervalId);
         });
@@ -21,11 +21,11 @@ export const useTimers = () => {
 
     // Stop all timers
     const stopAll = useCallback(() => {
-        clearIntervals()
+        clearAllIntervals()
         setTimerList(prevList =>
             prevList.map(timer => ({ ...timer, isRunning: false }))
         );
-    }, [clearIntervals]);
+    }, [clearAllIntervals]);
 
     // Create new timers
     const selectTimers = useCallback((value: number) => {
@@ -74,7 +74,7 @@ export const useTimers = () => {
 
     // Reset all timers
     const resetAll = useCallback(() => {
-        clearIntervals()
+        clearAllIntervals()
         setTimerList(prevList =>
             prevList.map(timer => ({
                 ...timer,
@@ -82,7 +82,7 @@ export const useTimers = () => {
                 isRunning: false
             }))
         );
-    }, [clearIntervals]);
+    }, [clearAllIntervals]);
 
     // Start individual timer
     const startTimer = useCallback((timerId: number) => {
@@ -100,6 +100,7 @@ export const useTimers = () => {
 
             intervalRefs.current.set(timerId, intervalId as unknown as number);
 
+            // Update the timer list to show that the timer is running
             setTimerList(prevList =>
                 prevList.map(t =>
                     t.id === timerId ? { ...t, isRunning: true } : t
@@ -127,9 +128,9 @@ export const useTimers = () => {
     useEffect(() => {
 
         return () => {
-            clearIntervals()
+            clearAllIntervals()
         };
-    }, [clearIntervals]);
+    }, [clearAllIntervals]);
 
     return {
         timers,
